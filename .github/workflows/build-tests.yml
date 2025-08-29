@@ -4,9 +4,15 @@ on:
 jobs:
   test_front:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/front
+
     strategy:
       matrix:
         node-version: [ 20 ]
+
     steps:
       - name: Checkout-code
         uses: actions/checkout@v4
