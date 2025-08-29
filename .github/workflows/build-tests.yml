@@ -1,0 +1,23 @@
+name: Tests Font/Back
+on:
+  pull_request:
+jobs:
+  test_front:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 20 ]
+    steps:
+      - name: Checkout-code
+        uses: actions/checkout@v4
+
+      - name: SetUp NodeJs
+        uses: actions/setup-node@v4
+        with:
+           node-version: ${{ matrix.node-version }}
+
+      - name: Install front dependencies
+        run: npm install
+
+      - name: Run front tests with coverage
+        run : npm run test
