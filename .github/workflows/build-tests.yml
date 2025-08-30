@@ -11,12 +11,12 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 20 ]
+        node-version: [ latest ]
 
 
     steps:
       - name: Checkout-code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: SetUp NodeJs
         uses: actions/setup-node@v4
@@ -31,4 +31,11 @@ jobs:
 
       - name: Run front tests with coverage
         run : npm run test:prod --if-present
+
+      - name: Upload front tests coverage
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: front test code coverage
+          path: ./front/coverage/bobapp
 
