@@ -32,6 +32,9 @@ jobs:
       - name: Run front tests with coverage
         run : npm run test:prod --if-present
 
+      - name: Check coverage thresholds
+        run: npm run check-coverage
+
       - name: Upload front tests coverage
         uses: actions/upload-artifact@v4
         if: success() || failure()
