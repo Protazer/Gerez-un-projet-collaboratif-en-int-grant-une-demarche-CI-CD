@@ -62,6 +62,6 @@ jobs:
       - name: install dependencies
         run: mvn clean install
 
-      - name: run back tests
-        run: mvn clean test
+      - name: run back tests and generate coverage report
+        run: mvn verify
 
