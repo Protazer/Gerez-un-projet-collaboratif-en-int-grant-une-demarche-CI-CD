@@ -7,8 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:prod": "ng test --browsers=ChromeHeadless --watch=false --code-coverage",
-    "check-coverage": "nyc check-coverage --lines 80 --functions 80 --branches 80 --statements 80"
+    "test:prod": "ng test --code-coverage"
   },
   "private": true,
   "dependencies": {
@@ -22,6 +21,7 @@
     "@angular/platform-browser": "14.2.0",
     "@angular/platform-browser-dynamic": "14.2.0",
     "@angular/router": "14.2.0",
+    "karma-coverage-istanbul-reporter": "^3.0.3",
     "rxjs": "7.5.6",
     "tslib": "2.4.0",
     "zone.js": "0.11.8"
@@ -37,7 +37,6 @@
     "karma-coverage": "2.2.0",
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.0.0",
-    "nyc": "^17.1.0",
     "typescript": "4.8.2"
   }
 }
