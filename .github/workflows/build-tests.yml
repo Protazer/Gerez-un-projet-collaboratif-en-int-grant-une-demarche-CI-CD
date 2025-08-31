@@ -57,7 +57,11 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: ${{matrix.java-version}}
-          distribution: "temurin"
-          cache: "maven"
+          distribution: temurin
 
+      - name: install dependencies
+        run: mvn clean install
+
+      - name: run back tests
+        run: mvn clean test
 
