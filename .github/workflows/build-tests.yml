@@ -1,0 +1,75 @@
+name: Tests Font/Back
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  test_front:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/front
+
+    strategy:
+      matrix:
+        node-version: [ latest ]
+
+
+    steps:
+      - name: Checkout-code
+        uses: actions/checkout@v5
+
+      - name: SetUp NodeJs
+        uses: actions/setup-node@v4
+        with:
+           node-version: ${{ matrix.node-version }}
+
+      - name: Install front dependencies
+        run: npm install
+
+      - name: Build front application
+        run: npm run build --if-present
+
+      - name: Run front tests with coverage
+        run: npm run test:prod --if-present
+
+      - name: Upload front tests coverage
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: front test code coverage
+          path: ./front/coverage/bobapp
+
+  test_back:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/back
+
+    strategy:
+      matrix:
+        java-version: [11]
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup JAVA 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{matrix.java-version}}
+          distribution: temurin
+
+      - name: install dependencies
+        run: mvn clean install
+
+      - name: run back tests and generate coverage report
+        run: mvn clean verify
+
+      - name: Backend code coverage report artifact
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: JaCoCo code coverage
+          path: ./back/target/site/jacoco/
+
