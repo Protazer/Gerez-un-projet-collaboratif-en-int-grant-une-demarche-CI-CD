@@ -1,13 +1,15 @@
-name: SonarCloud analyse
+name: SonarQube
 on:
-  workflow_run:
-    workflows: [ "Tests Font-Back" ]   # attend la fin du premier workflow
-    types:
-      - completed
+  pull_request:
+    branches:
+      - main
 jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/back
     steps:
       - uses: actions/checkout@v4
         with:
