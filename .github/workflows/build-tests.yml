@@ -1,6 +1,7 @@
 name: Tests Font/Back
 on:
   pull_request:
+    branches: [main]
 jobs:
   test_front:
     runs-on: ubuntu-latest
