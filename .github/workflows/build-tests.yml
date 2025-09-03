@@ -63,5 +63,11 @@ jobs:
         run: mvn clean install
 
       - name: run back tests and generate coverage report
-        run: mvn verify
+        run: mvn clean verify
+
+      - name: Backend code coverage report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JaCoCo code coverage
+          path: ./back/target/site/jacoco/
 
