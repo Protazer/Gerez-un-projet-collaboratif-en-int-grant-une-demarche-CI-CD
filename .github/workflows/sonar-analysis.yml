@@ -1,7 +1,7 @@
 name: SonarCloud analyse
 on:
   workflow_run:
-    workflows: [ "Tests Font/Back" ]   # attend la fin du premier workflow
+    workflows: [ "Tests Font-Back" ]   # attend la fin du premier workflow
     types:
       - completed
 jobs:

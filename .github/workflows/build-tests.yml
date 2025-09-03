@@ -1,4 +1,4 @@
-name: Tests Font/Back
+name: Tests Font-Back
 on:
   pull_request:
     branches:
