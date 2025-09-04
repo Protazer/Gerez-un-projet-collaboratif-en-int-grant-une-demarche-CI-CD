@@ -112,9 +112,12 @@ jobs:
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Protazer_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
 
       - name: SonarCloud Quality Gate
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: sonarsource/sonarcloud-github-action@v1
+        with:
+          organization: protazer476003011
+          projectKey: Protazer_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
         env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   sonar_frontend:
     name: Front end sonar analysis
