@@ -49,13 +49,13 @@ jobs:
 
     strategy:
       matrix:
-        java-version: [11]
+        java-version: [17]
 
     steps:
       - name: checkout code
         uses: actions/checkout@v5
 
-      - name: Setup JAVA 11
+      - name: Setup JAVA 17
         uses: actions/setup-java@v4
         with:
           java-version: ${{matrix.java-version}}
@@ -86,10 +86,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: 11
+          java-version: 17
           distribution: 'zulu' # Alternative distribution options are available.
 
       - name: Cache SonarQube packages
@@ -109,15 +109,7 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Protazer_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-
-      - name: SonarCloud Quality Gate
-        uses: sonarsource/sonarcloud-github-action@v1
-        with:
-          organization: protazer476003011
-          projectKey: Protazer_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Protazer_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD -Dsonar.qualitygate.wait=true
 
   sonar_frontend:
     name: Front end sonar analysis
