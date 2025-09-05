@@ -80,7 +80,6 @@ jobs:
         with:
           node-version: latest
 
-      # Backend (Java)
       - name: Install Backend dependencies
         run: |
           cd backend
@@ -89,7 +88,6 @@ jobs:
       - name: run back tests and generate coverage report
         run: mvn clean verify
 
-      # Frontend (JS/TS)
       - name: Install Front dependencies
         run: |
           cd frontend
