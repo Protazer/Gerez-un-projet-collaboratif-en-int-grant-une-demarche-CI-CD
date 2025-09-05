@@ -81,22 +81,23 @@ jobs:
           node-version: latest
 
       - name: Install Backend dependencies
-        run: |
-          cd backend
-          mvn clean install
+        working-directory: ${{github.workspace}}/back
+        run: mvn clean install
 
       - name: run back tests and generate coverage report
-        run: mvn clean verify
+        working-directory: ${{github.workspace}}/back
+        run:  mvn clean verify
 
       - name: Install Front dependencies
-        run: |
-          cd frontend
-          npm ci
+        working-directory: ${{github.workspace}}/front
+        run: npm ci
 
       - name: Build front application
+        working-directory: ${{github.workspace}}/front
         run: npm run build --if-present
 
       - name: Run front tests with coverage
+        working-directory: ${{github.workspace}}/front
         run: npm run test:prod --if-present
 
       - name: SonarCloud Quality Gate
