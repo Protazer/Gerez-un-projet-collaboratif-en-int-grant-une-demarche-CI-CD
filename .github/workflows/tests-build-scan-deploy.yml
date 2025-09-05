@@ -6,6 +6,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 jobs:
   test_front:
     runs-on: ubuntu-latest
@@ -14,11 +15,6 @@ jobs:
       run:
         working-directory: ${{ github.workspace }}/front
 
-    strategy:
-      matrix:
-        node-version: [ latest ]
-
-
     steps:
       - name: Checkout-code
         uses: actions/checkout@v5
@@ -26,7 +22,7 @@ jobs:
       - name: SetUp NodeJs
         uses: actions/setup-node@v4
         with:
-           node-version: ${{ matrix.node-version }}
+           node-version: latest
 
       - name: Install front dependencies
         run: npm install
@@ -50,10 +46,6 @@ jobs:
       run:
         working-directory: ${{github.workspace}}/back
 
-    strategy:
-      matrix:
-        java-version: [17]
-
     steps:
       - name: checkout code
         uses: actions/checkout@v5
@@ -61,7 +53,7 @@ jobs:
       - name: Setup JAVA 17
         uses: actions/setup-java@v4
         with:
-          java-version: ${{matrix.java-version}}
+          java-version: 17
           distribution: temurin
 
       - name: install dependencies
@@ -77,85 +69,48 @@ jobs:
           name: JaCoCo code coverage
           path: ./back/target/site/jacoco/
 
-  sonar_backend:
-    name: Backend sonar analysis
+  sonar_scan:
+    name: Backend and Frontend sonar analysis
     runs-on: ubuntu-latest
-    needs: test_back
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/back
-
+    needs: [test_back, test_front]
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'zulu' # Alternative distribution options are available.
+      - uses: actions/checkout@v5
 
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Protazer_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD  -Dsonar.qualitygate.wait=true
-
-  sonar_frontend:
-    name: Front end sonar analysis
-    runs-on: ubuntu-latest
-    needs: test_front
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/front
-
-    strategy:
-      matrix:
-        node-version: [ latest ]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: Set up Node.js
+      - name: SetUp NodeJs
         uses: actions/setup-node@v4
         with:
-          node-version: ${{matrix.node-version}}
+          node-version: latest
 
-      - name: Install dependencies
+      - name: Install Backend dependencies
+        working-directory: ${{github.workspace}}/back
+        run: mvn clean install
+
+      - name: run back tests and generate coverage report
+        working-directory: ${{github.workspace}}/back
+        run:  mvn clean verify
+
+      - name: Install Front dependencies
+        working-directory: ${{github.workspace}}/front
         run: npm ci
 
-      - name: Build application
+      - name: Build front application
+        working-directory: ${{github.workspace}}/front
         run: npm run build --if-present
 
-      - name: Run tests with coverage
+      - name: Run front tests with coverage
+        working-directory: ${{github.workspace}}/front
         run: npm run test:prod --if-present
 
       - name: SonarCloud Quality Gate
         uses: SonarSource/sonarcloud-github-action@master
-        with:
-          projectBaseDir: front
         env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   docker_backend:
     name: Build & Push Backend Docker
     runs-on: ubuntu-latest
-    needs: [sonar_backend, sonar_frontend]
+    needs:
+      - sonar_scan
     defaults:
       run:
         working-directory: ${{ github.workspace }}/back
@@ -179,7 +134,8 @@ jobs:
   docker_frontend:
     name: Build & Push Frontend Docker
     runs-on: ubuntu-latest
-    needs: [ sonar_backend, sonar_frontend ]
+    needs:
+        - sonar_scan
     defaults:
       run:
         working-directory: ${{ github.workspace }}/front
