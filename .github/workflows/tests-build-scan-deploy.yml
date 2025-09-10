@@ -1,12 +1,13 @@
 name: Tests build scan and deploy app
+
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
+
   workflow_dispatch:
+
 jobs:
   test_front:
     runs-on: ubuntu-latest
@@ -33,12 +34,16 @@ jobs:
       - name: Run front tests with coverage
         run: npm run test:prod --if-present
 
-      - name: Upload front tests coverage
+      - name: Upload front tests coverage and build
         uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: front test code coverage
-          path: ./front/coverage/bobapp
+          name: front test code coverage and build
+          path: |
+            ./front/coverage/bobapp
+            ./front/dist
+            ./front/build
+            
 
   test_back:
     runs-on: ubuntu-latest
@@ -66,43 +71,33 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: JaCoCo code coverage
-          path: ./back/target/site/jacoco/
+          name: JaCoCo code coverage and classes
+          path: |
+            ./back/target/site/jacoco/
+            ./back/target/classes
 
   sonar_scan:
     name: Backend and Frontend sonar analysis
     runs-on: ubuntu-latest
     needs: [test_back, test_front]
+
     steps:
       - uses: actions/checkout@v5
 
-      - name: SetUp NodeJs
-        uses: actions/setup-node@v4
+      - name: Download backend artifacts
+        uses: actions/download-artifact@v4
         with:
-          node-version: latest
+            name: JaCoCo code coverage and classes
+            path: back/target
 
-      - name: Install Backend dependencies
-        working-directory: ${{github.workspace}}/back
-        run: mvn clean install
-
-      - name: run back tests and generate coverage report
-        working-directory: ${{github.workspace}}/back
-        run:  mvn clean verify
-
-      - name: Install Front dependencies
-        working-directory: ${{github.workspace}}/front
-        run: npm ci
-
-      - name: Build front application
-        working-directory: ${{github.workspace}}/front
-        run: npm run build --if-present
-
-      - name: Run front tests with coverage
-        working-directory: ${{github.workspace}}/front
-        run: npm run test:prod --if-present
+      - name: Download front artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: front test code coverage and build
+          path: front
 
       - name: SonarCloud Quality Gate
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: sonarsource/sonarqube-scan-action@master
         env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
